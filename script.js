@@ -1,3 +1,5 @@
+
+
 /**
  * Authenticates the user by sending their username and hashed password to the server.
  */
