@@ -1,3 +1,6 @@
+/**
+ * Authenticates the user by sending their username and hashed password to the server.
+ */
 function authenticate() {
     var username = document.getElementById("username").value;
     var password = document.getElementById("password").value;
@@ -24,7 +27,11 @@ function authenticate() {
     });
 }
 
-// SHA-256 hashing function (you can use a library for more secure hashing)
+/**
+ * SHA-256 hashing function
+ * @param {string} str - The string to be hashed
+ * @returns {Promise<string>} - A promise that resolves to the hashed string in hexadecimal format
+ */
 function sha256(str) {
     const buffer = new TextEncoder('utf-8').encode(str);
     return crypto.subtle.digest('SHA-256', buffer).then(hashArray => {
