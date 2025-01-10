@@ -3,133 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bluetooth Joystick</title>
+  <title>Joystick Controller</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    #status {
-      margin: 20px 0;
-      font-size: 18px;
-    }
-    #joystick-container {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 50px;
-    }
     .joystick {
-      width: 150px;
-      height: 150px;
-      border: 2px solid #333;
+      width: 200px;
+      height: 200px;
       border-radius: 50%;
+      border: 2px solid black;
+      margin: 20px;
       position: relative;
+      display: inline-block;
     }
-    .stick {
+    .knob {
       width: 40px;
       height: 40px;
-      background-color: #333;
       border-radius: 50%;
+      background-color: #333;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       touch-action: none;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-    }
   </style>
 </head>
 <body>
-  <h1>Bluetooth Joystick</h1>
-  <div id="status">Status: Not connected</div>
-  <button id="connectButton">Connect to Bluetooth</button>
-  <div id="joystick-container">
-    <div id="joystickLeft" class="joystick">
-      <div class="stick"></div>
-    </div>
-    <div id="joystickRight" class="joystick">
-      <div class="stick"></div>
-    </div>
+  <h1>ESP32 Bluetooth Joystick Controller</h1>
+  <div id="joystick1" class="joystick">
+    <div id="knob1" class="knob"></div>
+  </div>
+  <div id="joystick2" class="joystick">
+    <div id="knob2" class="knob"></div>
   </div>
 
+  <button onclick="connectBluetooth()">Connect Bluetooth</button>
+
+  <script src="cordova.js"></script>
   <script>
-    let bluetoothDevice;
-    let bluetoothServer;
-    let outputCharacteristic;
-    const statusText = document.getElementById("status");
-    const connectButton = document.getElementById("connectButton");
+    let joystick1 = { x: 0, y: 0 };
+    let joystick2 = { x: 0, y: 0 };
+    let bluetoothConnection = null;
 
-    connectButton.addEventListener("click", async () => {
-      try {
-        bluetoothDevice = await navigator.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: ['00001101-0000-1000-8000-00805f9b34fb'] // Replace with your service UUID
-        });
-
-        statusText.textContent = "Connecting...";
-        bluetoothServer = await bluetoothDevice.gatt.connect();
-        const service = await bluetoothServer.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
-        outputCharacteristic = await service.getCharacteristic('00001101-0000-1000-8000-00805f9b34fb'); // Replace with characteristic UUID
-        statusText.textContent = `Connected to: ${bluetoothDevice.name}`;
-      } catch (error) {
-        console.error("Bluetooth connection failed", error);
-        statusText.textContent = "Connection failed";
-      }
-    });
-
-    function sendJoystickData(joystick, x, y) {
-      if (!outputCharacteristic) {
+    // Function to connect to Bluetooth device
+    function connectBluetooth() {
+      if (bluetoothConnection) {
+        console.log('Already connected');
         return;
       }
-      const data = `${joystick}:X=${x},Y=${y}\n`;
-      const encoder = new TextEncoder();
-      outputCharacteristic.writeValue(encoder.encode(data)).catch((error) => {
-        console.error("Failed to send data", error);
-      });
-    }
 
-    function setupJoystick(joystickId, joystickName) {
-      const joystick = document.getElementById(joystickId);
-      const stick = joystick.querySelector(".stick");
-      let isDragging = false;
-
-      joystick.addEventListener("mousedown", (e) => {
-        isDragging = true;
-      });
-
-      window.addEventListener("mousemove", (e) => {
-        if (!isDragging) return;
-        const rect = joystick.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        let x = e.clientX - centerX;
-        let y = e.clientY - centerY;
-        const maxDistance = rect.width / 2;
-        const distance = Math.sqrt(x * x + y * y);
-        if (distance > maxDistance) {
-          x = (x / distance) * maxDistance;
-          y = (y / distance) * maxDistance;
+      bluetoothSerial.list(function(devices) {
+        if (devices.length > 0) {
+          // Connect to the first available device
+          bluetoothSerial.connect(devices[0].id, function() {
+            console.log('Connected to Bluetooth device');
+            bluetoothConnection = true;
+          }, function(error) {
+            console.log('Connection failed', error);
+          });
         }
-        stick.style.transform = `translate(${x}px, ${y}px)`;
-        const normalizedX = Math.round((x / maxDistance) * 100);
-        const normalizedY = Math.round((-y / maxDistance) * 100);
-        sendJoystickData(joystickName, normalizedX, normalizedY);
-      });
-
-      window.addEventListener("mouseup", () => {
-        isDragging = false;
-        stick.style.transform = "translate(-50%, -50%)";
-        sendJoystickData(joystickName, 0, 0);
       });
     }
 
-    setupJoystick("joystickLeft", "LEFT");
-    setupJoystick("joystickRight", "RIGHT");
+    // Function to send joystick data to Bluetooth
+    function sendJoystickData() {
+      if (bluetoothConnection) {
+        const data = `${Math.round(joystick1.x * 1023)},${Math.round(joystick1.y * 1023)},${Math.round(joystick2.x * 1023)},${Math.round(joystick2.y * 1023)}`;
+        bluetoothSerial.write(data, function() {
+          console.log('Data sent');
+        }, function(error) {
+          console.log('Failed to send data', error);
+        });
+      }
+    }
+
+    // Joystick movement handler
+    function moveJoystick(joystick, knob, e) {
+      const joystickRect = joystick.getBoundingClientRect();
+      const offsetX = e.clientX - joystickRect.left;
+      const offsetY = e.clientY - joystickRect.top;
+
+      const centerX = joystickRect.width / 2;
+      const centerY = joystickRect.height / 2;
+      const maxDistance = joystickRect.width / 2;
+
+      const distanceX = Math.min(Math.max(offsetX - centerX, -maxDistance), maxDistance);
+      const distanceY = Math.min(Math.max(offsetY - centerY, -maxDistance), maxDistance);
+
+      joystick.x = distanceX / maxDistance;
+      joystick.y = distanceY / maxDistance;
+
+      knob.style.left = `${centerX + distanceX - knob.offsetWidth / 2}px`;
+      knob.style.top = `${centerY + distanceY - knob.offsetHeight / 2}px`;
+
+      sendJoystickData();
+    }
+
+    const joystick1Element = document.getElementById('joystick1');
+    const knob1 = document.getElementById('knob1');
+    const joystick2Element = document.getElementById('joystick2');
+    const knob2 = document.getElementById('knob2');
+
+    joystick1Element.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      moveJoystick(joystick1, knob1, e.touches[0]);
+    });
+
+    joystick2Element.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      moveJoystick(joystick2, knob2, e.touches[0]);
+    });
   </script>
 </body>
 </html>
