@@ -1,1 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bluetooth Joystick</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    #status {
+      margin: 20px 0;
+      font-size: 18px;
+    }
+    #joystick-container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 50px;
+    }
+    .joystick {
+      width: 150px;
+      height: 150px;
+      border: 2px solid #333;
+      border-radius: 50%;
+      position: relative;
+    }
+    .stick {
+      width: 40px;
+      height: 40px;
+      background-color: #333;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      touch-action: none;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bluetooth Joystick</h1>
+  <div id="status">Status: Not connected</div>
+  <button id="connectButton">Connect to Bluetooth</button>
+  <div id="joystick-container">
+    <div id="joystickLeft" class="joystick">
+      <div class="stick"></div>
+    </div>
+    <div id="joystickRight" class="joystick">
+      <div class="stick"></div>
+    </div>
+  </div>
 
+  <script>
+    let bluetoothDevice;
+    let bluetoothServer;
+    let outputCharacteristic;
+    const statusText = document.getElementById("status");
+    const connectButton = document.getElementById("connectButton");
+
+    connectButton.addEventListener("click", async () => {
+      try {
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: ['00001101-0000-1000-8000-00805f9b34fb'] // Replace with your service UUID
+        });
+
+        statusText.textContent = "Connecting...";
+        bluetoothServer = await bluetoothDevice.gatt.connect();
+        const service = await bluetoothServer.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
+        outputCharacteristic = await service.getCharacteristic('00001101-0000-1000-8000-00805f9b34fb'); // Replace with characteristic UUID
+        statusText.textContent = `Connected to: ${bluetoothDevice.name}`;
+      } catch (error) {
+        console.error("Bluetooth connection failed", error);
+        statusText.textContent = "Connection failed";
+      }
+    });
+
+    function sendJoystickData(joystick, x, y) {
+      if (!outputCharacteristic) {
+        return;
+      }
+      const data = `${joystick}:X=${x},Y=${y}\n`;
+      const encoder = new TextEncoder();
+      outputCharacteristic.writeValue(encoder.encode(data)).catch((error) => {
+        console.error("Failed to send data", error);
+      });
+    }
+
+    function setupJoystick(joystickId, joystickName) {
+      const joystick = document.getElementById(joystickId);
+      const stick = joystick.querySelector(".stick");
+      let isDragging = false;
+
+      joystick.addEventListener("mousedown", (e) => {
+        isDragging = true;
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const rect = joystick.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        let x = e.clientX - centerX;
+        let y = e.clientY - centerY;
+        const maxDistance = rect.width / 2;
+        const distance = Math.sqrt(x * x + y * y);
+        if (distance > maxDistance) {
+          x = (x / distance) * maxDistance;
+          y = (y / distance) * maxDistance;
+        }
+        stick.style.transform = `translate(${x}px, ${y}px)`;
+        const normalizedX = Math.round((x / maxDistance) * 100);
+        const normalizedY = Math.round((-y / maxDistance) * 100);
+        sendJoystickData(joystickName, normalizedX, normalizedY);
+      });
+
+      window.addEventListener("mouseup", () => {
+        isDragging = false;
+        stick.style.transform = "translate(-50%, -50%)";
+        sendJoystickData(joystickName, 0, 0);
+      });
+    }
+
+    setupJoystick("joystickLeft", "LEFT");
+    setupJoystick("joystickRight", "RIGHT");
+  </script>
+</body>
+</html>
