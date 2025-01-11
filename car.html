@@ -9,6 +9,8 @@
       font-family: Arial, sans-serif;
       text-align: center;
       background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
     }
 
     h1 {
@@ -32,6 +34,7 @@
       background-color: #333;
       border-radius: 50%;
       cursor: pointer;
+      position: absolute;
     }
 
     button {
@@ -39,20 +42,31 @@
       padding: 10px 20px;
       font-size: 16px;
     }
+
+    #connectButton {
+      margin-top: 30px;
+    }
+
+    .status {
+      font-size: 16px;
+      color: green;
+    }
+
   </style>
 </head>
 <body>
   <h1>ESP32 Car Controller</h1>
 
-  <div id="leftJoystick" class="joystick" style="top: 50px; left: 50px;">
+  <div id="leftJoystick" class="joystick" style="top: 150px; left: 50px;">
     <div class="thumb" id="leftThumb"></div>
   </div>
 
-  <div id="rightJoystick" class="joystick" style="top: 50px; right: 50px;">
+  <div id="rightJoystick" class="joystick" style="top: 150px; right: 50px;">
     <div class="thumb" id="rightThumb"></div>
   </div>
 
   <button id="connectButton">Connect Bluetooth</button>
+  <div class="status" id="status">Status: Not Connected</div>
 
   <script>
     let leftJoystick = document.getElementById('leftJoystick');
@@ -60,8 +74,8 @@
     let leftThumb = document.getElementById('leftThumb');
     let rightThumb = document.getElementById('rightThumb');
     let connectButton = document.getElementById('connectButton');
+    let statusDiv = document.getElementById('status');
 
-    // Variables to store the joystick positions
     let leftY = 0, leftX = 0;
     let rightY = 0, rightX = 0;
 
@@ -76,26 +90,32 @@
 
     function connectBluetooth() {
       if (navigator.bluetooth) {
+        statusDiv.textContent = "Status: Requesting Bluetooth device...";
+
         navigator.bluetooth.requestDevice({
-          filters: [{ services: ['battery_service'] }]
+          filters: [{ services: ['battery_service'] }] // Use correct service UUID here
         })
         .then(device => {
           bluetoothDevice = device;
+          statusDiv.textContent = "Status: Connected to " + device.name;
           return device.gatt.connect();
         })
         .then(server => {
-          // Get the service and characteristic for communication
-          return server.getPrimaryService('your_service_uuid');
+          // You should replace with the actual service UUID of your ESP32
+          return server.getPrimaryService('your_service_uuid'); 
         })
         .then(service => {
-          return service.getCharacteristic('your_characteristic_uuid');
+          // Replace with the actual characteristic UUID
+          return service.getCharacteristic('your_characteristic_uuid'); 
         })
         .then(characteristic => {
           bluetoothCharacteristic = characteristic;
           console.log("Bluetooth connected");
+          statusDiv.textContent = "Status: Bluetooth Connected";
         })
         .catch(error => {
           console.error('Bluetooth connection failed', error);
+          statusDiv.textContent = "Status: Connection Failed. " + error;
         });
       } else {
         alert('Web Bluetooth API not supported in this browser.');
@@ -134,7 +154,10 @@
       if (bluetoothCharacteristic) {
         let data = `Y1:${leftY.toFixed(2)}, X1:${leftX.toFixed(2)}, Y2:${rightY.toFixed(2)}, X2:${rightX.toFixed(2)}`;
         let encoder = new TextEncoder();
-        bluetoothCharacteristic.writeValue(encoder.encode(data));
+        bluetoothCharacteristic.writeValue(encoder.encode(data))
+        .catch(error => {
+          console.error('Error sending data via Bluetooth', error);
+        });
       }
     }
 
