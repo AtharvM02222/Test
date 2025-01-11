@@ -3,114 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joystick Controller</title>
+  <title>ESP32 Car Controller</title>
   <style>
-    .joystick {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      border: 2px solid black;
-      margin: 20px;
-      position: relative;
-      display: inline-block;
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
     }
-    .knob {
-      width: 40px;
-      height: 40px;
+
+    h1 {
+      margin-top: 50px;
+    }
+
+    .joystick {
+      width: 150px;
+      height: 150px;
       border-radius: 50%;
-      background-color: #333;
+      background-color: #ddd;
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      touch-action: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .thumb {
+      width: 50px;
+      height: 50px;
+      background-color: #333;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <h1>ESP32 Bluetooth Joystick Controller</h1>
-  <div id="joystick1" class="joystick">
-    <div id="knob1" class="knob"></div>
-  </div>
-  <div id="joystick2" class="joystick">
-    <div id="knob2" class="knob"></div>
+  <h1>ESP32 Car Controller</h1>
+
+  <div id="leftJoystick" class="joystick" style="top: 50px; left: 50px;">
+    <div class="thumb" id="leftThumb"></div>
   </div>
 
-  <button onclick="connectBluetooth()">Connect Bluetooth</button>
+  <div id="rightJoystick" class="joystick" style="top: 50px; right: 50px;">
+    <div class="thumb" id="rightThumb"></div>
+  </div>
 
-  <script src="cordova.js"></script>
+  <button id="connectButton">Connect Bluetooth</button>
+
   <script>
-    let joystick1 = { x: 0, y: 0 };
-    let joystick2 = { x: 0, y: 0 };
-    let bluetoothConnection = null;
+    let leftJoystick = document.getElementById('leftJoystick');
+    let rightJoystick = document.getElementById('rightJoystick');
+    let leftThumb = document.getElementById('leftThumb');
+    let rightThumb = document.getElementById('rightThumb');
+    let connectButton = document.getElementById('connectButton');
 
-    // Function to connect to Bluetooth device
+    // Variables to store the joystick positions
+    let leftY = 0, leftX = 0;
+    let rightY = 0, rightX = 0;
+
+    let bluetoothDevice;
+    let bluetoothCharacteristic;
+
+    const JOYSTICK_RADIUS = 75;
+    const THUMB_RADIUS = 25;
+
+    // Event listener for the connect button
+    connectButton.addEventListener('click', connectBluetooth);
+
     function connectBluetooth() {
-      if (bluetoothConnection) {
-        console.log('Already connected');
-        return;
-      }
-
-      bluetoothSerial.list(function(devices) {
-        if (devices.length > 0) {
-          // Connect to the first available device
-          bluetoothSerial.connect(devices[0].id, function() {
-            console.log('Connected to Bluetooth device');
-            bluetoothConnection = true;
-          }, function(error) {
-            console.log('Connection failed', error);
-          });
-        }
-      });
-    }
-
-    // Function to send joystick data to Bluetooth
-    function sendJoystickData() {
-      if (bluetoothConnection) {
-        const data = `${Math.round(joystick1.x * 1023)},${Math.round(joystick1.y * 1023)},${Math.round(joystick2.x * 1023)},${Math.round(joystick2.y * 1023)}`;
-        bluetoothSerial.write(data, function() {
-          console.log('Data sent');
-        }, function(error) {
-          console.log('Failed to send data', error);
+      if (navigator.bluetooth) {
+        navigator.bluetooth.requestDevice({
+          filters: [{ services: ['battery_service'] }]
+        })
+        .then(device => {
+          bluetoothDevice = device;
+          return device.gatt.connect();
+        })
+        .then(server => {
+          // Get the service and characteristic for communication
+          return server.getPrimaryService('your_service_uuid');
+        })
+        .then(service => {
+          return service.getCharacteristic('your_characteristic_uuid');
+        })
+        .then(characteristic => {
+          bluetoothCharacteristic = characteristic;
+          console.log("Bluetooth connected");
+        })
+        .catch(error => {
+          console.error('Bluetooth connection failed', error);
         });
+      } else {
+        alert('Web Bluetooth API not supported in this browser.');
       }
     }
 
-    // Joystick movement handler
-    function moveJoystick(joystick, knob, e) {
-      const joystickRect = joystick.getBoundingClientRect();
-      const offsetX = e.clientX - joystickRect.left;
-      const offsetY = e.clientY - joystickRect.top;
+    // Handle the movement of the joysticks
+    function moveThumb(thumb, event, joystick) {
+      let rect = joystick.getBoundingClientRect();
+      let x = event.clientX - rect.left - JOYSTICK_RADIUS;
+      let y = event.clientY - rect.top - JOYSTICK_RADIUS;
 
-      const centerX = joystickRect.width / 2;
-      const centerY = joystickRect.height / 2;
-      const maxDistance = joystickRect.width / 2;
+      // Ensure thumb stays within joystick bounds
+      let distance = Math.sqrt(x * x + y * y);
+      if (distance > JOYSTICK_RADIUS) {
+        x = (x / distance) * JOYSTICK_RADIUS;
+        y = (y / distance) * JOYSTICK_RADIUS;
+      }
 
-      const distanceX = Math.min(Math.max(offsetX - centerX, -maxDistance), maxDistance);
-      const distanceY = Math.min(Math.max(offsetY - centerY, -maxDistance), maxDistance);
+      thumb.style.transform = `translate(${x}px, ${y}px)`;
 
-      joystick.x = distanceX / maxDistance;
-      joystick.y = distanceY / maxDistance;
+      // Calculate the values for the X and Y axes (between -1 and 1)
+      if (joystick === leftJoystick) {
+        leftX = x / JOYSTICK_RADIUS;
+        leftY = y / JOYSTICK_RADIUS;
+      } else {
+        rightX = x / JOYSTICK_RADIUS;
+        rightY = y / JOYSTICK_RADIUS;
+      }
 
-      knob.style.left = `${centerX + distanceX - knob.offsetWidth / 2}px`;
-      knob.style.top = `${centerY + distanceY - knob.offsetHeight / 2}px`;
-
-      sendJoystickData();
+      sendBluetoothData();
     }
 
-    const joystick1Element = document.getElementById('joystick1');
-    const knob1 = document.getElementById('knob1');
-    const joystick2Element = document.getElementById('joystick2');
-    const knob2 = document.getElementById('knob2');
+    // Send the joystick data to the ESP32 via Bluetooth
+    function sendBluetoothData() {
+      if (bluetoothCharacteristic) {
+        let data = `Y1:${leftY.toFixed(2)}, X1:${leftX.toFixed(2)}, Y2:${rightY.toFixed(2)}, X2:${rightX.toFixed(2)}`;
+        let encoder = new TextEncoder();
+        bluetoothCharacteristic.writeValue(encoder.encode(data));
+      }
+    }
 
-    joystick1Element.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-      moveJoystick(joystick1, knob1, e.touches[0]);
+    // Listen to mouse drag events for joystick movement
+    leftJoystick.addEventListener('mousedown', (event) => {
+      moveThumb(leftThumb, event, leftJoystick);
+      document.addEventListener('mousemove', (event) => {
+        moveThumb(leftThumb, event, leftJoystick);
+      });
     });
 
-    joystick2Element.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-      moveJoystick(joystick2, knob2, e.touches[0]);
+    rightJoystick.addEventListener('mousedown', (event) => {
+      moveThumb(rightThumb, event, rightJoystick);
+      document.addEventListener('mousemove', (event) => {
+        moveThumb(rightThumb, event, rightJoystick);
+      });
+    });
+
+    // Remove mousemove listener when mouse is released
+    document.addEventListener('mouseup', () => {
+      document.removeEventListener('mousemove', moveThumb);
     });
   </script>
 </body>
