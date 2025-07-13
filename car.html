@@ -2,183 +2,164 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESP32 Car Controller</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f0f0f0;
-      margin: 0;
-      padding: 0;
-    }
-
-    h1 {
-      margin-top: 50px;
-    }
-
-    .joystick {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      background-color: #ddd;
-      position: absolute;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .thumb {
-      width: 50px;
-      height: 50px;
-      background-color: #333;
-      border-radius: 50%;
-      cursor: pointer;
-      position: absolute;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-
-    #connectButton {
-      margin-top: 30px;
-    }
-
-    .status {
-      font-size: 16px;
-      color: green;
-    }
-
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>e-Waste Awareness</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Load Chart.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Load Landbot script for chatbot widget -->
+  <script src="https://cdn.landbot.io/landbot-3/landbot-3.0.0.js"></script>
 </head>
 <body>
-  <h1>ESP32 Car Controller</h1>
+  <header>
+    <h1>Electronic Waste (E-Waste) Awareness</h1>
+    <p>Learn about e-waste causes, impacts, and what you can do.</p>
+  </header>
 
-  <div id="leftJoystick" class="joystick" style="top: 150px; left: 50px;">
-    <div class="thumb" id="leftThumb"></div>
-  </div>
+  <main>
+    <section id="what-is-e-waste">
+      <h2>What is E-Waste?</h2>
+      <p>E-waste (electronic waste) includes any discarded electronic devices with a plug or battery. It is a growing waste stream as consumers replace phones, computers, and appliances quickly. 62 million tonnes of e-waste were generated globally in 2022 [oai_citation:16‡unitar.org](https://unitar.org/about/news-stories/press/global-e-waste-monitor-2024-electronic-waste-rising-five-times-faster-documented-e-waste-recycling#:~:text=20%20March%202024%2C%20Geneva%20%2F,report%20from%20ITU%20and%20UNITAR), making it a major environmental concern. E-waste often contains toxic materials (lead, mercury, cadmium) that can harm health and the environment [oai_citation:17‡ewastemonitor.info](https://ewastemonitor.info/the-global-e-waste-monitor-2024/#:~:text=E,human%20brain%20and%20coordination%20system).</p>
+    </section>
 
-  <div id="rightJoystick" class="joystick" style="top: 150px; right: 50px;">
-    <div class="thumb" id="rightThumb"></div>
-  </div>
+    <section id="causes-sources">
+      <h2>Causes and Sources</h2>
+      <ul>
+        <li>Rapid technology turnover: Frequent device upgrades lead to more discarded electronics each year [oai_citation:18‡weee-forum.org](https://weee-forum.org/ws_news/international-e-waste-day-2021/#:~:text=Global%20e,lifecycles%20and%20limited%20repair%20options).</li>
+        <li>High consumption: Growing global demand for gadgets (smartphones, laptops, TVs) drives waste volumes [oai_citation:19‡ewastemonitor.info](https://ewastemonitor.info/the-global-e-waste-monitor-2024/#:~:text=Challenges%20contributing%20to%20the%20widening,waste%20management%20infrastructure).</li>
+        <li>Short product lifecycles: Limited repair and long-term use options mean old devices become obsolete quickly [oai_citation:20‡ewastemonitor.info](https://ewastemonitor.info/the-global-e-waste-monitor-2024/#:~:text=Challenges%20contributing%20to%20the%20widening,waste%20management%20infrastructure).</li>
+      </ul>
+      <p>Key sources include households and businesses discarding old appliances, IT equipment, and consumer electronics. Globally, Asia, Europe, and the Americas generate the majority of e-waste by volume [oai_citation:21‡ewastemonitor.info](https://ewastemonitor.info/gem-2020/#:~:text=According%20to%20the%20report%2C%20Asia,enough%20to%20form%20a%20line).</p>
+    </section>
 
-  <button id="connectButton">Connect Bluetooth</button>
-  <div class="status" id="status">Status: Not Connected</div>
+    <section id="impacts">
+      <h2>Environmental and Health Impacts</h2>
+      <p>E-waste often ends up in landfills or is informally recycled, releasing hazardous substances. For example, burning circuit boards or melting plastics emits toxic fumes. Mercury from screens and lead from batteries can contaminate soil and water, damaging ecosystems and human health [oai_citation:22‡ewastemonitor.info](https://ewastemonitor.info/the-global-e-waste-monitor-2024/#:~:text=E,human%20brain%20and%20coordination%20system). Formal e-waste recycling (which recovers metals safely) is limited: as of 2022, only about 22% of e-waste was properly collected and recycled [oai_citation:23‡unitar.org](https://unitar.org/about/news-stories/press/global-e-waste-monitor-2024-electronic-waste-rising-five-times-faster-documented-e-waste-recycling#:~:text=Meanwhile%2C%20less%20than%20one%20quarter,battery%2C%20is%20a%20health%20and). The rest often enters landfill or illegal dumps, where pollutants can accumulate. These practices contribute to air and water pollution, threatening nearby communities.</p>
+    </section>
 
+    <section id="disposal-methods">
+      <h2>Current Disposal Methods</h2>
+      <p>Most e-waste is discarded via landfill or informal sectors, especially in developing countries. Only a fraction goes through formal recycling or refurbishment. For example, in the EU (2018) roughly 55% of e-waste was collected for recycling, while the rest was lost [oai_citation:24‡weee-forum.org](https://weee-forum.org/ws_news/international-e-waste-day-2021/#:~:text=By%20weight%2C%20discarded%20big%20appliances,the%20WEEE%20Forum%20in%20a). Globally, improper disposal is common. Some electronics are exported to countries with lax regulations, where informal dismantling happens without safety measures. This underlines the need for better disposal infrastructure.</p>
+    </section>
+
+    <section id="management-strategies">
+      <h2>E-Waste Management Strategies</h2>
+      <ul>
+        <li><strong>Legislation and EPR:</strong> Many countries have enacted e-waste laws. As of 2023, 81 countries had specific e-waste regulations, often mandating manufacturer responsibility for recycling [oai_citation:25‡unitar.org](https://unitar.org/about/news-stories/press/global-e-waste-monitor-2024-electronic-waste-rising-five-times-faster-documented-e-waste-recycling#:~:text=%2A%2081%20countries%20had%20e,legislation%2C%20and%20regulation%20%E2%80%9Cremains%20a).</li>
+        <li><strong>Recycling Programs:</strong> Establishing more recycling centers and take-back schemes helps collect devices for material recovery.</li>
+        <li><strong>Public Awareness:</strong> Educating consumers to recycle old electronics and designing products for repair/ reuse.</li>
+        <li><strong>Global Targets:</strong> The UN reports that increasing collection/recycling rates to 60% by 2030 would bring net benefits (over US$38 billion saved) [oai_citation:26‡unitar.org](https://unitar.org/about/news-stories/press/global-e-waste-monitor-2024-electronic-waste-rising-five-times-faster-documented-e-waste-recycling#:~:text=The%20report%20underlines%20that%20if,mobility). Higher recycling also reduces mining needs and pollution.</li>
+      </ul>
+      <p>These strategies aim to close the loop on electronic materials and mitigate health/environmental impacts.</p>
+    </section>
+
+    <section id="global-stats">
+      <h2>Global E-Waste Statistics</h2>
+      <p>Interactive charts below illustrate key data:</p>
+      <!-- Chart canvases -->
+      <div class="chart-container">
+        <canvas id="annualChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="countryChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="recycleChart"></canvas>
+      </div>
+      <p>The first chart shows rising global e-waste (62 Mt in 2022 [oai_citation:27‡unitar.org](https://unitar.org/about/news-stories/press/global-e-waste-monitor-2024-electronic-waste-rising-five-times-faster-documented-e-waste-recycling#:~:text=20%20March%202024%2C%20Geneva%20%2F,report%20from%20ITU%20and%20UNITAR)). The second compares e-waste by country (largest producers). The third is a pie chart of recycling (green) vs. landfill (gray), showing only ~22% recycled [oai_citation:28‡unitar.org](https://unitar.org/about/news-stories/press/global-e-waste-monitor-2024-electronic-waste-rising-five-times-faster-documented-e-waste-recycling#:~:text=Meanwhile%2C%20less%20than%20one%20quarter,battery%2C%20is%20a%20health%20and).</p>
+    </section>
+
+    <section id="chatbot">
+      <h2>Ask Our E-Waste Chatbot</h2>
+      <p>Click the chat widget at the bottom right to ask questions about e-waste, recycling tips, or anything on this page.</p>
+      <!-- Landbot Embed Code -->
+      <script>
+        var myLandbot = new Landbot.Livechat({
+          configUrl: 'https://chats.landbot.io/v3/H-642181-Q42D49PVMDCXYYL8/index.json'
+        });
+      </script>
+    </section>
+  </main>
+
+  <footer>
+    <p>Data and facts from the UN Global E-waste Monitor and related sources.</p>
+  </footer>
+
+  <!-- Chart.js scripts -->
   <script>
-    let leftJoystick = document.getElementById('leftJoystick');
-    let rightJoystick = document.getElementById('rightJoystick');
-    let leftThumb = document.getElementById('leftThumb');
-    let rightThumb = document.getElementById('rightThumb');
-    let connectButton = document.getElementById('connectButton');
-    let statusDiv = document.getElementById('status');
-
-    let leftY = 0, leftX = 0;
-    let rightY = 0, rightX = 0;
-
-    let bluetoothDevice;
-    let bluetoothCharacteristic;
-
-    const JOYSTICK_RADIUS = 75;
-    const THUMB_RADIUS = 25;
-
-    // Event listener for the connect button
-    connectButton.addEventListener('click', connectBluetooth);
-
-    function connectBluetooth() {
-      if (navigator.bluetooth) {
-        statusDiv.textContent = "Status: Requesting Bluetooth device...";
-
-        navigator.bluetooth.requestDevice({
-          filters: [{ services: ['battery_service'] }] // Use correct service UUID here
-        })
-        .then(device => {
-          bluetoothDevice = device;
-          statusDiv.textContent = "Status: Connected to " + device.name;
-          return device.gatt.connect();
-        })
-        .then(server => {
-          // You should replace with the actual service UUID of your ESP32
-          return server.getPrimaryService('your_service_uuid'); 
-        })
-        .then(service => {
-          // Replace with the actual characteristic UUID
-          return service.getCharacteristic('your_characteristic_uuid'); 
-        })
-        .then(characteristic => {
-          bluetoothCharacteristic = characteristic;
-          console.log("Bluetooth connected");
-          statusDiv.textContent = "Status: Bluetooth Connected";
-        })
-        .catch(error => {
-          console.error('Bluetooth connection failed', error);
-          statusDiv.textContent = "Status: Connection Failed. " + error;
-        });
-      } else {
-        alert('Web Bluetooth API not supported in this browser.');
+    // Global annual e-waste (2010-2022)
+    const annualCtx = document.getElementById('annualChart').getContext('2d');
+    new Chart(annualCtx, {
+      type: 'line',
+      data: {
+        labels: [2010, 2015, 2019, 2021, 2022],
+        datasets: [{
+          label: 'Global E-waste (million tonnes)',
+          data: [34, 44, 53.6, 57.4, 62],
+          borderColor: '#2c7bb6',
+          backgroundColor: 'rgba(44,123,182,0.5)',
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Annual Global E-Waste Generation'
+          }
+        }
       }
-    }
-
-    // Handle the movement of the joysticks
-    function moveThumb(thumb, event, joystick) {
-      let rect = joystick.getBoundingClientRect();
-      let x = event.clientX - rect.left - JOYSTICK_RADIUS;
-      let y = event.clientY - rect.top - JOYSTICK_RADIUS;
-
-      // Ensure thumb stays within joystick bounds
-      let distance = Math.sqrt(x * x + y * y);
-      if (distance > JOYSTICK_RADIUS) {
-        x = (x / distance) * JOYSTICK_RADIUS;
-        y = (y / distance) * JOYSTICK_RADIUS;
-      }
-
-      thumb.style.transform = `translate(${x}px, ${y}px)`;
-
-      // Calculate the values for the X and Y axes (between -1 and 1)
-      if (joystick === leftJoystick) {
-        leftX = x / JOYSTICK_RADIUS;
-        leftY = y / JOYSTICK_RADIUS;
-      } else {
-        rightX = x / JOYSTICK_RADIUS;
-        rightY = y / JOYSTICK_RADIUS;
-      }
-
-      sendBluetoothData();
-    }
-
-    // Send the joystick data to the ESP32 via Bluetooth
-    function sendBluetoothData() {
-      if (bluetoothCharacteristic) {
-        let data = `Y1:${leftY.toFixed(2)}, X1:${leftX.toFixed(2)}, Y2:${rightY.toFixed(2)}, X2:${rightX.toFixed(2)}`;
-        let encoder = new TextEncoder();
-        bluetoothCharacteristic.writeValue(encoder.encode(data))
-        .catch(error => {
-          console.error('Error sending data via Bluetooth', error);
-        });
-      }
-    }
-
-    // Listen to mouse drag events for joystick movement
-    leftJoystick.addEventListener('mousedown', (event) => {
-      moveThumb(leftThumb, event, leftJoystick);
-      document.addEventListener('mousemove', (event) => {
-        moveThumb(leftThumb, event, leftJoystick);
-      });
     });
 
-    rightJoystick.addEventListener('mousedown', (event) => {
-      moveThumb(rightThumb, event, rightJoystick);
-      document.addEventListener('mousemove', (event) => {
-        moveThumb(rightThumb, event, rightJoystick);
-      });
+    // E-waste by country (example)
+    const countryCtx = document.getElementById('countryChart').getContext('2d');
+    new Chart(countryCtx, {
+      type: 'bar',
+      data: {
+        labels: ['China', 'USA', 'India', 'Japan', 'Brazil'],
+        datasets: [{
+          label: 'E-waste (kilotonnes)',
+          data: [10129, 6918, 3230, 2569, 2143],
+          backgroundColor: ['#abd9e9','#2c7bb6','#fdae61','#d7191c','#fdae61']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Annual E-Waste by Country'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
     });
 
-    // Remove mousemove listener when mouse is released
-    document.addEventListener('mouseup', () => {
-      document.removeEventListener('mousemove', moveThumb);
+    // Recycling vs landfill pie chart
+    const recycleCtx = document.getElementById('recycleChart').getContext('2d');
+    new Chart(recycleCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Recycled', 'Landfilled/Discarded'],
+        datasets: [{
+          data: [22.3, 77.7],
+          backgroundColor: ['#2ca25f', '#cccccc']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Recycled vs. Unrecycled E-Waste (2022)'
+          }
+        }
+      }
     });
   </script>
 </body>
