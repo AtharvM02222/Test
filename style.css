@@ -1,0 +1,251 @@
+/* style.css */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f9f9f9;
+}
+
+/* Header styles */
+header {
+  background-color: #2c7bb6;
+  color: #fff;
+  padding: 40px 20px;
+  text-align: center;
+}
+header h1 {
+  margin: 0 0 10px;
+  font-size: 2.5em;
+}
+header p {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+/* Main content area */
+main {
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* Section headings */
+section h2 {
+  font-size: 1.8em;
+  margin-top: 40px;
+  color: #2c7bb6;
+  border-bottom: 3px solid #2c7bb6;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+section p, section ul {
+  margin-top: 15px;
+}
+
+/* List styles */
+ul {
+  margin: 10px 0 10px 20px;
+}
+ul li {
+  margin-bottom: 8px;
+}
+
+/* Chart container for responsiveness */
+.chart-container {
+  position: relative;
+  margin: 30px 0;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.chart-container canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Chatbot section */
+#chatbot {
+  margin: 30px 0;
+  text-align: center;
+}
+#chatbot h2 {
+  margin-bottom: 10px;
+}
+#chatbot p {
+  margin-bottom: 20px;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #eaeaea;
+  margin-top: 40px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 2em;
+  }
+  section h2 {
+    font-size: 1.5em;
+  }
+}
+
+/* Additional styling */
+p {
+  text-align: justify;
+}
+
+a {
+  color: #2c7bb6;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Button style (example) */
+.button {
+  display: inline-block;
+  background: #2c7bb6;
+  color: #fff;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.button:hover {
+  background: #1a5a8a;
+}
+
+/* Highlight important text */
+.highlight {
+  background-color: #ffffcc;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* Navigation (if any) */
+nav {
+  background: #eef;
+  padding: 10px;
+  text-align: center;
+}
+nav a {
+  margin: 0 15px;
+  color: #2c7bb6;
+  font-weight: bold;
+}
+
+/* Ensure images scale */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Card style (for potential content cards) */
+.card {
+  background: #fff;
+  border-radius: 6px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  margin: 20px 0;
+}
+
+/* Example of using multiple columns */
+.columns {
+  column-count: 2;
+  column-gap: 40px;
+}
+@media (max-width: 600px) {
+  .columns {
+    column-count: 1;
+  }
+}
+
+/* Additional utility classes */
+.text-center {
+  text-align: center;
+}
+.mt-small {
+  margin-top: 10px;
+}
+.mt-large {
+  margin-top: 40px;
+}
+.mb-small {
+  margin-bottom: 10px;
+}
+.mb-large {
+  margin-bottom: 40px;
+}
+
+/* Smooth image loading (lazy) */
+img {
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+}
+img[src] {
+  opacity: 1;
+}
+
+/* Fancy list style */
+ul.checklist {
+  list-style: none;
+  padding: 0;
+}
+ul.checklist li {
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+}
+ul.checklist li::before {
+  content: "✔ ";
+  color: #2c7bb6;
+}
+
+/* Table styling example */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+th {
+  background: #f0f0f0;
+}
+
+/* Inline code style */
+code {
+  background: #eee;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+/* Blockquote style */
+blockquote {
+  border-left: 4px solid #2c7bb6;
+  padding-left: 10px;
+  color: #555;
+  margin: 20px 0;
+}
+
+/* Fade-in animation for sections */
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+section {
+  animation: fadeIn 1s ease-in;
+}
